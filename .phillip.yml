@@ -1,0 +1,7 @@
+shuffle: true
+bootstrap: .support/bootstrap.php
+suites:
+  Assertions: tests/Phillip/Assertion
+coverage:
+  enable: false
+  include: src/*.php
