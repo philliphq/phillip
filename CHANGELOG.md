@@ -1,4 +1,10 @@
 
+v0.2.1 / 2016-03-09
+===================
+
+  * Update tests to record coverage data, and add tests for size and length assertions
+  * Fix size method, and add a few comments
+
 v0.2.0 / 2016-03-09
 ===================
 
