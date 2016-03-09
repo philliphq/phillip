@@ -44,6 +44,15 @@ class Assertion
         return $this;
     }
 
+    /**
+     * Check the resolution of a function.
+     *
+     * @param bool   $assertion The result of the assertion
+     * @param string $message   An array containing a failure message and
+     *                          variables to substitute into it
+     *
+     * @return bool
+     */
     public function check($assertion, $message)
     {
         $assertion = $this->negative ? !((bool) $assertion) : (bool) $assertion;
@@ -158,19 +167,20 @@ class Assertion
      */
     public function size($len)
     {
+        $len = (int) $len;
         if (is_string($this->value)) {
             $message = ['%s {{does not have|has}} a string length of %s', $this->value, $len];
-            $this->check((strlen($this->value) !== $len), $message);
+            $this->check((strlen($this->value) === $len), $message);
         }
 
         if (is_int($this->value)) {
             $message = ['Integer %s {{does not have|has}} a size of %s', $this->value, $len];
-            $this->check(($this->value !== $len), $message);
+            $this->check(($this->value === $len), $message);
         }
 
         if (is_array($this->value)) {
             $message = ['Array {{does not have|has}} a size of %s', $len];
-            $this->check((count($this->value) !== $len), $message);
+            $this->check((count($this->value) === $len), $message);
         }
 
         return $this;
