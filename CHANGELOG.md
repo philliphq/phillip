@@ -1,4 +1,9 @@
 
+v0.2.0 / 2016-03-09
+===================
+
+  * Reshuffle a few things, and add code coverage calculations
+
 v0.1.1 / 2016-03-05
 ===================
 
