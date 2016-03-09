@@ -5,8 +5,7 @@ namespace Phillip;
 use Evenement\EventEmitterInterface;
 use Evenement\EventEmitterTrait;
 use Exception;
-use Molovo\Prompt\ANSI;
-use Molovo\Prompt\Prompt;
+use Molovo\Graphite\Graphite;
 use Molovo\Str\Str;
 use Phillip\Exceptions\TestNotFoundException;
 use RecursiveDirectoryIterator;
@@ -69,7 +68,9 @@ class Runner implements EventEmitterInterface
             return static::$instance;
         }
 
-        return static::$instance = new static;
+        static::$instance = new static;
+
+        return static::$instance->init();
     }
 
     /**
@@ -79,18 +80,31 @@ class Runner implements EventEmitterInterface
     {
         // Get the current directory
         $this->pwd = $_SERVER['PWD'];
+    }
 
+    /**
+     * Initialize the test runner.
+     *
+     * @return self
+     */
+    public function init()
+    {
         // Create an object for outputting information to the CLI
         $this->output = new Output($this);
 
         // Parse the options
-        $this->options = Options::bootstrap($this);
+        $this->options = new Options([], $this);
+
+        // Create an object for collating code coverage information
+        $this->coverage = new Coverage($this);
 
         // Parse the arguments passed to the script
         $this->parseArguments();
 
         // Run the main bootstrap script if it exists
         $this->bootstrap($this->pwd.'/tests');
+
+        return $this;
     }
 
     /**
@@ -272,7 +286,8 @@ class Runner implements EventEmitterInterface
             $name = Str::title($suite);
 
             // Output a message to the user
-            Prompt::output(ANSI::fg("\n  Running $total tests in suite $name...\n", ANSI::GRAY));
+            echo "\n";
+            echo $this->output->gray->render("Running $total tests in suite $name...");
 
             // Render the table of tests
             $this->output->table();
@@ -307,7 +322,7 @@ class Runner implements EventEmitterInterface
      */
     public function addPass(Test $test)
     {
-        $this->output->updateTable($test->pos->x, $test->pos->y, ANSI::GREEN);
+        $this->output->updateTable($test->pos->x, $test->pos->y, Graphite::GREEN);
         $this->passed[] = $test;
     }
 
@@ -318,7 +333,7 @@ class Runner implements EventEmitterInterface
      */
     public function addFailure(Test $test)
     {
-        $this->output->updateTable($test->pos->x, $test->pos->y, ANSI::RED);
+        $this->output->updateTable($test->pos->x, $test->pos->y, Graphite::RED);
         $this->failures[] = $test;
     }
 
@@ -329,7 +344,7 @@ class Runner implements EventEmitterInterface
      */
     public function addError(Test $test)
     {
-        $this->output->updateTable($test->pos->x, $test->pos->y, ANSI::YELLOW);
+        $this->output->updateTable($test->pos->x, $test->pos->y, Graphite::YELLOW);
         $this->errors[] = $test;
     }
 
@@ -340,7 +355,7 @@ class Runner implements EventEmitterInterface
      */
     public function addSkipped(Test $test)
     {
-        $this->output->updateTable($test->pos->x, $test->pos->y, ANSI::MAGENTA);
+        $this->output->updateTable($test->pos->x, $test->pos->y, Graphite::MAGENTA);
         $this->skipped[] = $test;
     }
 }

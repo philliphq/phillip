@@ -10,7 +10,7 @@
       }
     ],
     "require": {
-      "molovo/prompt": "~0.1",
+      "molovo/graphite": "~0.1",
       "molovo/object": "~1.0",
       "molovo/str": "~0.1",
       "evenement/evenement": "2.0.*",
@@ -26,5 +26,6 @@
     },
     "bin": [
       "phillip"
-    ]
+    ],
+    "minimum-stability": "dev"
 }

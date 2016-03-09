@@ -2,10 +2,11 @@
 
 namespace Phillip;
 
-use Molovo\Prompt\ANSI;
-use Molovo\Prompt\Prompt;
+use Molovo\Graphite\Box;
+use Molovo\Graphite\Graphite;
+use Molovo\Graphite\Table;
 
-class Output
+class Output extends Graphite
 {
     /**
      * The indicator used to represent a test in the output.
@@ -64,6 +65,7 @@ class Output
     public function __construct(Runner $runner)
     {
         $this->runner = $runner;
+        $this->setGlobalIndent(2);
     }
 
     /**
@@ -73,44 +75,85 @@ class Output
     {
         $out = [''];
 
-        $pre      = '  '.self::INDICATOR.' ';
         $total    = $this->runner->totalCount;
         $passed   = count($this->runner->passed);
         $failures = count($this->runner->failures);
         $errors   = count($this->runner->errors);
         $skipped  = count($this->runner->skipped);
 
-        $out[] = ANSI::fg($pre, ANSI::GREEN).'Passes    '.$passed;
-        $out[] = ANSI::fg($pre, ANSI::RED).'Failures  '.$failures;
-        $out[] = ANSI::fg($pre, ANSI::YELLOW).'Errors    '.$errors;
-        $out[] = ANSI::fg($pre, ANSI::MAGENTA).'Skipped   '.$skipped;
+        $results   = [];
+        $results[] = $this->green(self::INDICATOR).' Passes    '.$passed;
+        $results[] = $this->red(self::INDICATOR).' Failures  '.$failures;
+        $results[] = $this->yellow(self::INDICATOR).' Errors    '.$errors;
+        $results[] = $this->magenta(self::INDICATOR).' Skipped   '.$skipped;
+
+        $box = new Box($results, [
+            'borderColor' => self::YELLOW,
+            'paddingX'    => 1,
+        ]);
+        $box->setTitle('Results');
+        $out[] = $box;
 
         foreach ($this->runner->failures as $test) {
             $out[] = '';
-            $out[] = ANSI::fg('  FAILED - '.$test->name, ANSI::RED);
-            $out[] = '  '.$test->getFailureMessage();
+            $out[] = $this->red('FAILED - '.$test->name);
+            $out[] = $test->getFailureMessage();
         }
 
         foreach ($this->runner->errors as $test) {
             $out[] = '';
-            $out[] = ANSI::fg('  ERROR - '.$test->name, ANSI::YELLOW);
-            $out[] = '  '.$test->getErrorMessage();
+            $out[] = $this->yellow('ERROR - '.$test->name);
+            $out[] = $test->getErrorMessage();
         }
 
-        $color = ANSI::GREEN;
+        $count = $this->green("$passed / $total");
         if ($passed !== $total) {
-            $color = ANSI::RED;
+            $count = $this->red("$passed / $total");
         }
-        $count = ANSI::fg("$passed / $total", $color);
-        $out[] = "\n  $count tests passed successfully.";
+        $out[] = '';
+        $out[] = "$count tests passed successfully.";
 
-        Prompt::output(implode("\n", $out));
+        echo $this->render(implode("\n", $out));
 
-        if ($this->runner->options->coverage->enabled === true) {
-            $this->coverage();
+        if ($this->runner->options->coverage->enable === true) {
+            echo "\n";
+            echo $this->gray->render('Calculating Coverage...');
+            echo "\n";
+
+            $this->runner->coverage->calculate();
+            echo $this->runner->coverage->output();
         }
 
         exit((int) ($passed !== $total));
+    }
+
+    /**
+     * Print help text to the command line.
+     */
+    public function help()
+    {
+        $this->setGlobalIndent(0);
+        echo $this->yellow->render('Usage:');
+        echo $this('  phillip [options] [file|directory]');
+
+        echo $this('');
+        echo $this->yellow->render('Options:');
+        echo $this('  -h, --help           Show help text and exit.');
+        echo $this('  -v, --version        Show version information and exit.');
+        echo $this('  -c, --coverage       Show coverage data.');
+        echo $this('  -s, --suite <suite>  Run a predefined test suite.');
+        echo $this('  -r, --random         Run tests within each suite in random order.');
+    }
+
+    /**
+     * Print version information to the command line.
+     */
+    public function version()
+    {
+        $this->setGlobalIndent(0);
+        $version = file_get_contents(__DIR__.'/../../.version');
+        echo $this->yellow->render('Phillip');
+        echo $this('Version '.trim($version));
     }
 
     /**
@@ -118,142 +161,6 @@ class Output
      */
     public function coverage()
     {
-        $coverage = $this->options->coverage->enable !== false;
-        if ($coverage) {
-            Prompt::output(ANSI::fg("\n".'  Calculating Coverage...'."\n", ANSI::GRAY));
-
-            $coverageData = xdebug_get_code_coverage();
-
-            $include = [];
-            $exclude = [];
-
-            $includedFiles = $this->options->coverage->include;
-            $excludedFiles = $this->options->coverage->exclude;
-
-            if ($includedFiles) {
-                if (!is_array($includedFiles)) {
-                    $includedFiles = [$includedFiles];
-                }
-
-                foreach ($includedFiles as $glob) {
-                    $glob    = $this->pwd.'/'.$glob;
-                    $include = array_merge($include, $this->glob_recursive($glob));
-                }
-            }
-
-            if ($excludedFiles) {
-                if (!is_array($excludedFiles)) {
-                    $excludedFiles = [$excludedFiles];
-                }
-
-                foreach ($excludedFiles as $glob) {
-                    $glob    = $this->pwd.'/'.$glob;
-                    $exclude = array_merge($exclude, $this->glob_recursive($glob));
-                }
-            }
-
-            $processedCoverage = [
-                'classes' => [],
-                'files'   => [],
-            ];
-            foreach ($coverageData as $file => $lines) {
-                if (in_array($file, $include) && !in_array($file, $exclude)) {
-                    $fp    = fopen($file, 'r');
-                    $class = $namespace = $buffer = '';
-                    $i     = 0;
-                    while (!$class) {
-                        if (feof($fp)) {
-                            break;
-                        }
-
-                        $buffer .= fread($fp, 512);
-                        $tokens = @token_get_all($buffer);
-
-                        if (strpos($buffer, '{') === false) {
-                            continue;
-                        }
-
-                        for (;$i < count($tokens);$i++) {
-                            if ($tokens[$i][0] === T_NAMESPACE) {
-                                for ($j = $i + 1;$j < count($tokens); $j++) {
-                                    if ($tokens[$j][0] === T_STRING) {
-                                        $namespace .= '\\'.$tokens[$j][1];
-                                    } elseif ($tokens[$j] === '{' || $tokens[$j] === ';') {
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if ($tokens[$i][0] === T_CLASS) {
-                                for ($j = $i + 1;$j < count($tokens);$j++) {
-                                    if ($tokens[$j] === '{') {
-                                        $class = $tokens[$i + 2][1];
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    $covered = array_filter($lines, function ($value, $line) {
-                        return $value === 1;
-                    }, ARRAY_FILTER_USE_BOTH);
-
-                    if ($class) {
-                        $name                                = Str::namespaced("$namespace\\$class");
-                        $processedCoverage['classes'][$name] = [
-                            'covered' => count($covered),
-                            'total'   => count($lines),
-                        ];
-                    } else {
-                        $name                              = str_replace($this->pwd, '', $file);
-                        $processedCoverage['files'][$name] = [
-                            'covered' => count($covered),
-                            'total'   => count($lines),
-                        ];
-                    }
-                }
-            }
-
-            $maxLen = 0;
-            foreach ($processedCoverage['classes'] as $name => $values) {
-                if (strlen($name) > $maxLen) {
-                    $maxLen = strlen($name);
-                }
-            }
-            foreach ($processedCoverage['files'] as $name => $values) {
-                if (strlen($name) > $maxLen) {
-                    $maxLen = strlen($name);
-                }
-            }
-
-            $maxLen += 3;
-
-            foreach ($processedCoverage as $type => $data) {
-                if (count($data) !== 0) {
-                    Prompt::output('  '.Str::title($type));
-                }
-                foreach ($data as $name => $values) {
-                    $name    = str_pad($name, $maxLen, ' ');
-                    $covered = $values['covered'];
-                    $total   = $values['total'];
-                    $value   = $covered.' / '.$total;
-
-                    if ((($covered / $total) * 100) < 25) {
-                        $value = ANSI::fg($value, ANSI::RED);
-                    }
-
-                    if ((($covered / $total) * 100) < 75) {
-                        $value = ANSI::fg($value, ANSI::YELLOW);
-                    }
-
-                    if ((($covered / $total) * 100) >= 75) {
-                        $value = ANSI::fg($value, ANSI::GREEN);
-                    }
-
-                    Prompt::output('  '.$name.' '.$value);
-                }
-            }
-        }
     }
 
     /**
@@ -266,7 +173,7 @@ class Output
     public function updateTable($x, $y, $color)
     {
         $this->goToXY($x, $y);
-        echo ANSI::fg(self::INDICATOR, $color);
+        echo $this->setColor($color)->encode(self::INDICATOR);
         $this->x++;
         $this->goToXY($this->xMax, $this->yMax);
     }
@@ -360,7 +267,7 @@ class Output
         $this->y = 0;
         foreach ($this->runner->tests as $i => $test) {
             $test->setPosition($this->x, $this->y);
-            echo ANSI::fg('◼ ', ANSI::GRAY);
+            echo $this->gray('◼ ');
             $this->x += 2;
 
             $j = $i + 1;

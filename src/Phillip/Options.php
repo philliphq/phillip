@@ -3,8 +3,6 @@
 namespace Phillip;
 
 use Molovo\Object\Object;
-use Molovo\Prompt\ANSI;
-use Molovo\Prompt\Prompt;
 
 class Options extends Object
 {
@@ -13,7 +11,7 @@ class Options extends Object
      *
      * @var array
      */
-    private static $defaults = [
+    private $defaults = [
         'shuffle' => false,
         'suites'  => [
             'tests' => 'tests',
@@ -36,15 +34,44 @@ class Options extends Object
     /**
      * Bootstrap the options.
      *
-     * @param Runner $runner The test runner
+     * @param array  $options The option values
+     * @param Runner $runner  The test runner
      *
      * @return self The options object
      */
-    public static function bootstrap(Runner $runner)
+    public function __construct(array $options = [], Runner $runner = null)
     {
-        static::$runner = $runner;
+        if ($runner !== null) {
+            $this->runner = $runner;
+            $options      = $this->parseOptions();
+        }
 
-        return new static(static::parseOptions());
+        parent::__construct($options);
+    }
+
+    /**
+     * Retrieve an option value statically.
+     *
+     * @param string $key The key to get
+     *
+     * @return mixed
+     */
+    public static function get($key)
+    {
+        return Runner::instance()->options->valueForPath($key);
+    }
+
+    /**
+     * Set an option value statically.
+     *
+     * @param string $key   The key to set
+     * @param mixed  $value The value to set
+     *
+     * @return mixed
+     */
+    public static function set($key, $value)
+    {
+        return Runner::instance()->options->setValueForPath($key, $value);
     }
 
     /**
@@ -52,11 +79,11 @@ class Options extends Object
      *
      * @return array
      */
-    private static function parseOptions()
+    private function parseOptions()
     {
-        $opts = static::$defaults;
-        $opts = static::parseYamlOptions($opts);
-        $opts = static::parseCliOptions($opts);
+        $opts = $this->defaults;
+        $opts = $this->parseYamlOptions($opts);
+        $opts = $this->parseCliOptions($opts);
 
         return $opts;
     }
@@ -69,10 +96,10 @@ class Options extends Object
      *
      * @return array
      */
-    private static function parseYamlOptions(array $opts = [])
+    private function parseYamlOptions(array $opts = [])
     {
-        if (is_file(static::$runner->pwd.'/.phillip.yml')) {
-            $options = Yaml::parseFile(static::$runner->pwd.'/.phillip.yml');
+        if (is_file($this->runner->pwd.'/.phillip.yml')) {
+            $options = Yaml::parseFile($this->runner->pwd.'/.phillip.yml');
 
             return array_merge($opts, $options);
         }
@@ -88,7 +115,7 @@ class Options extends Object
      *
      * @return array
      */
-    private static function parseCliOptions(array $opts = [])
+    private function parseCliOptions(array $opts = [])
     {
         $cliOpts = getopt('chvrs:', [
             'help',
@@ -99,12 +126,12 @@ class Options extends Object
         ]);
 
         if (isset($cliOpts['help']) || isset($cliOpts['h'])) {
-            static::printHelp();
+            $this->runner->output->help();
             exit;
         }
 
         if (isset($cliOpts['version']) || isset($cliOpts['v'])) {
-            static::printVersion();
+            $this->runner->output->version();
             exit;
         }
 
@@ -121,32 +148,5 @@ class Options extends Object
         }
 
         return $opts;
-    }
-
-    /**
-     * Print help text to the command line.
-     */
-    private static function printHelp()
-    {
-        Prompt::output(ANSI::fg('Usage:', ANSI::YELLOW));
-        Prompt::output('  phillip [options] [file|directory]');
-
-        Prompt::output('');
-        Prompt::output(ANSI::fg('Options:', ANSI::YELLOW));
-        Prompt::output('  -h, --help               Show help text and exit.');
-        Prompt::output('  -v, --version            Show version information and exit.');
-        Prompt::output('  -c, --coverage           Show coverage data.');
-        Prompt::output('  -s, --suite <suite>      Run a predefined test suite.');
-        Prompt::output('  -r, --random             Run tests within each suite in random order.');
-    }
-
-    /**
-     * Print version information to the command line.
-     */
-    private static function printVersion()
-    {
-        $version = file_get_contents(__DIR__.'/../../.version');
-        Prompt::output(ANSI::fg('Phillip', ANSI::YELLOW));
-        Prompt::output('Version '.trim($version));
     }
 }

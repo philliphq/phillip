@@ -70,7 +70,7 @@ class Test
      * Contains coordinates of the indicator in the table which
      * represents this test.
      *
-     * @var Object
+     * @var object
      */
     public $pos;
 
@@ -143,7 +143,7 @@ class Test
             // Start code coverage recording, if enabled
             $coverage = $test->runner->options->coverage->enable !== false;
             if ($coverage) {
-                xdebug_start_code_coverage(XDEBUG_CC_UNUSED);
+                xdebug_start_code_coverage(XDEBUG_CC_UNUSED | XDEBUG_CC_DEAD_CODE);
             }
 
             // Execute the callback
@@ -288,6 +288,29 @@ class Test
         if ($message !== null) {
             $this->expectedExceptionMessage = $message;
         }
+
+        return $this;
+    }
+
+    /**
+     * Select the method(s) which are covered by this test.
+     *
+     * @param string      $object An object or function name
+     * @param string|null $method An optional method name
+     */
+    public function covers($object, $method = null)
+    {
+        if (is_string($object) && $method === null) {
+            if (!strstr($object, '::')) {
+                $this->runner->coverage->addCoveredFunction($object);
+
+                return $this;
+            }
+
+            list($object, $method) = explode('::', $object);
+        }
+
+        $this->runner->coverage->addCoveredMethod($object, $method);
 
         return $this;
     }
