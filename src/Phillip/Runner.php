@@ -80,6 +80,8 @@ class Runner implements EventEmitterInterface
     {
         // Get the current directory
         $this->pwd = $_SERVER['PWD'];
+
+        \Accidents\Handler::register();
     }
 
     /**
