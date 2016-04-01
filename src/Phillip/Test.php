@@ -348,11 +348,24 @@ class Test
         // of the test name to allow them to be distinguished from
         // each other
         foreach ($data as $i => $values) {
-            test($this->name.' #'.$i, function ($test) use ($callback, $values) {
+            $name = "$this->name #$i";
+            $test = test($name, function ($test) use ($callback, $values) {
                 array_unshift($values, $test);
                 call_user_func_array($callback, $values);
             });
+
+            if ($this->expectedException !== null) {
+                $test->expect($this->expectedException, $this->expectedExceptionMessage);
+            }
+
+            if (!empty($this->covers)) {
+                foreach ($this->covers as $method) {
+                    $test->covers($method);
+                }
+            }
         }
+
+        return $this;
     }
 
     /**
