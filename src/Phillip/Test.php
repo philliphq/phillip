@@ -67,6 +67,13 @@ class Test
     private $assertions = 0;
 
     /**
+     * An array of a classes/functions which this test covers.
+     *
+     * @var string[]
+     */
+    private $covers = [];
+
+    /**
      * Contains coordinates of the indicator in the table which
      * represents this test.
      *
@@ -300,6 +307,8 @@ class Test
      */
     public function covers($object, $method = null)
     {
+        $this->covers[] = "$object::$method";
+
         if (is_string($object) && $method === null) {
             if (!strstr($object, '::')) {
                 $this->runner->coverage->addCoveredFunction($object);
