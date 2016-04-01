@@ -47,13 +47,13 @@ class Assertion
     /**
      * Check the resolution of a function.
      *
-     * @param bool   $assertion The result of the assertion
-     * @param string $message   An array containing a failure message and
-     *                          variables to substitute into it
+     * @param bool  $assertion The result of the assertion
+     * @param array $message   An array containing a failure message and
+     *                         variables to substitute into it
      *
      * @return bool
      */
-    public function check($assertion, $message)
+    public function assert($assertion, $message)
     {
         $assertion = $this->negative ? !((bool) $assertion) : (bool) $assertion;
 
@@ -134,7 +134,7 @@ class Assertion
     public function equal($value)
     {
         $message = ['%s is {{not|}} equal to %s', $this->value, $value];
-        $this->check(($this->value === $value), $message);
+        $this->assert(($this->value === $value), $message);
 
         return $this;
     }
@@ -151,7 +151,7 @@ class Assertion
     public function equivalentTo($value)
     {
         $message = ['%s is {{not|}} equivalent to %s', $this->value, $value];
-        $this->check(($this->value == $value), $message);
+        $this->assert(($this->value == $value), $message);
 
         return $this;
     }
@@ -170,17 +170,17 @@ class Assertion
         $len = (int) $len;
         if (is_string($this->value)) {
             $message = ['%s {{does not have|has}} a string length of %s', $this->value, $len];
-            $this->check((strlen($this->value) === $len), $message);
+            $this->assert((strlen($this->value) === $len), $message);
         }
 
         if (is_int($this->value)) {
             $message = ['Integer %s {{does not have|has}} a size of %s', $this->value, $len];
-            $this->check(($this->value === $len), $message);
+            $this->assert(($this->value === $len), $message);
         }
 
         if (is_array($this->value)) {
             $message = ['Array {{does not have|has}} a size of %s', $len];
-            $this->check((count($this->value) === $len), $message);
+            $this->assert((count($this->value) === $len), $message);
         }
 
         return $this;
@@ -210,7 +210,7 @@ class Assertion
     public function blank()
     {
         $message = ['%s is {{not|}} empty', $this->value];
-        $this->check((empty($this->value)), $message);
+        $this->assert((empty($this->value)), $message);
 
         return $this;
     }
@@ -225,7 +225,7 @@ class Assertion
     public function anArray()
     {
         $message = ['%s is {{not|}} an array', $this->value];
-        $this->check((is_array($this->value)), $message);
+        $this->assert((is_array($this->value)), $message);
 
         return $this;
     }
@@ -241,7 +241,7 @@ class Assertion
     {
         $message   = ['%s is {{not|}} traversable', $this->value];
         $assertion = (is_array($this->value) || $this->value instanceof Traversable);
-        $this->check($assertion, $message);
+        $this->assert($assertion, $message);
 
         return $this;
     }
@@ -258,7 +258,7 @@ class Assertion
     public function anInstanceOf($class)
     {
         $message = ['%s is {{not|}} an instance of %s', $this->value, $class];
-        $this->check(($this->value instanceof $class), $message);
+        $this->assert(($this->value instanceof $class), $message);
 
         return $this;
     }
@@ -275,7 +275,7 @@ class Assertion
     public function implement($interface)
     {
         $message = ['Class %s {{does not implement|implements}} interface %s', $this->value, $interface];
-        $this->check((in_array($interface, class_implements($this->value))), $message);
+        $this->assert((in_array($interface, class_implements($this->value))), $message);
 
         return $this;
     }
@@ -291,7 +291,7 @@ class Assertion
     {
         $matches = preg_match($regex, $this->value);
         $message = ['%s {{does not match|matches}} the regular expression %s', $this->value, $regex];
-        $this->check((!empty($matches)), $message);
+        $this->assert((!empty($matches)), $message);
 
         return $this;
     }
