@@ -55,3 +55,5 @@ group('version', function () {
         exec('git tag -a v'.$version.' -m "Release '.$version.'"');
     });
 });
+
+task('test', './phillip --coverage');
