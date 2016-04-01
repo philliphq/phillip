@@ -1,4 +1,13 @@
 
+v0.3.0 / 2016-04-01
+===================
+
+  * When passing data to a test, ensure covered methods and expected exceptions are also passed to each of the tests generated within the data loop
+  * Allow for marking coverage on multiple methods per test
+  * Rename method check -> assert
+  * Add test task to Phakefile
+  * Add accidents library for better error handling
+
 v0.2.1 / 2016-03-09
 ===================
 
