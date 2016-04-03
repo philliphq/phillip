@@ -134,6 +134,51 @@ class Assertion
     }
 
     /**
+     * Assert that the value is a boolean type.
+     *
+     * @throws AssertionFailureException
+     *
+     * @return self
+     */
+    public function boolean()
+    {
+        $message = ['%s is {{not|}} a boolean', $this->value];
+        $this->assert(is_bool($this->value), $message);
+
+        return $this;
+    }
+
+    /**
+     * Assert that the value is true.
+     *
+     * @throws AssertionFailureException
+     *
+     * @return self
+     */
+    public function true()
+    {
+        $message = ['%s is {{not|}} true', $this->value];
+        $this->asser(($this->value === true), $message);
+
+        return $this;
+    }
+
+    /**
+     * Assert that the value is false.
+     *
+     * @throws AssertionFailureException
+     *
+     * @return self
+     */
+    public function false()
+    {
+        $message = ['%s is {{not|}} false', $this->value];
+        $this->asser(($this->value === false), $message);
+
+        return $this;
+    }
+
+    /**
      * Assert that two values are equal.
      *
      * @param mixed $value The value to test
