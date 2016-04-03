@@ -25,7 +25,7 @@ phillip [options]
 
 ## Documentation
 
-Full documentation is available on <philliphq.github.io>
+Full documentation is available on <https://philliphq.github.io>
 
 ## Contributing
 
