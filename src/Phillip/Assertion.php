@@ -124,7 +124,10 @@ class Assertion
                 continue;
             }
 
-            $arg = '"'.$arg.'"';
+            if (is_string($arg)) {
+                $arg = '"'.$arg.'"';
+                continue;
+            }
         }
 
         array_unshift($args, $format);
@@ -158,7 +161,7 @@ class Assertion
     public function true()
     {
         $message = ['%s is {{not|}} true', $this->value];
-        $this->asser(($this->value === true), $message);
+        $this->assert(($this->value === true), $message);
 
         return $this;
     }
@@ -173,7 +176,7 @@ class Assertion
     public function false()
     {
         $message = ['%s is {{not|}} false', $this->value];
-        $this->asser(($this->value === false), $message);
+        $this->assert(($this->value === false), $message);
 
         return $this;
     }

@@ -18,7 +18,7 @@ test('Test anArray with an array with values', function (Test $test) {
 test('Test anArray with an integer', function (Test $test) {
     $test->is(0)->anArray();
 })
-    ->expect(AssertionFailureException::class, '"0" is not an array')
+    ->expect(AssertionFailureException::class, '0 is not an array')
     ->covers(Assertion::class, 'anArray');
 
 test('Test anArray with a string', function (Test $test) {

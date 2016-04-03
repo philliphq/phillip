@@ -18,7 +18,7 @@ test('Test traversable with array', function (Test $test) {
 test('Test traversable with integer', function (Test $test) {
     $test->is(1)->traversable(Test::class);
 })
-    ->expect(AssertionFailureException::class, '"1" is not traversable')
+    ->expect(AssertionFailureException::class, '1 is not traversable')
     ->covers(Assertion::class, 'traversable');
 
 test('Test traversable with string', function (Test $test) {

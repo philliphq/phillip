@@ -37,7 +37,7 @@ test('Test equivalent with two equivalent arrays with mixed types', function (Te
 test('Test unsuccessful assertion of two non-equivalent integers', function (Test $test) {
     $test->is(1)->equivalentTo(2);
 })
-    ->expect(AssertionFailureException::class, '"1" is not equivalent to "2"')
+    ->expect(AssertionFailureException::class, '1 is not equivalent to 2')
     ->covers(Assertion::class, 'equivalentTo');
 
 test('Test unsuccessful assertion of two non-equivalent strings', function (Test $test) {
@@ -73,7 +73,7 @@ test('Test successful negative assertion of two non-equivalent arrays', function
 test('Test unsuccessful negative assertion of two non-equivalent integers', function (Test $test) {
     $test->is(1)->not()->equivalentTo(1);
 })
-    ->expect(AssertionFailureException::class, '"1" is equivalent to "1"')
+    ->expect(AssertionFailureException::class, '1 is equivalent to 1')
     ->covers(Assertion::class, 'equivalentTo')
     ->covers(Assertion::class, 'not');
 

@@ -22,7 +22,7 @@ test('Test equal with two equal arrays', function (Test $test) {
 test('Test equal with two non-equal integers', function (Test $test) {
     $test->does(1)->equal(2);
 })
-    ->expect(AssertionFailureException::class, '"1" is not equal to "2"')
+    ->expect(AssertionFailureException::class, '1 is not equal to 2')
     ->covers(Assertion::class, 'equal');
 
 test('Test equal with two non-equal strings', function (Test $test) {
@@ -58,7 +58,7 @@ test('Test not equal with two non-equal arrays', function (Test $test) {
 test('Test not equal with two non-equal integers', function (Test $test) {
     $test->does(1)->not()->equal(1);
 })
-    ->expect(AssertionFailureException::class, '"1" is equal to "1"')
+    ->expect(AssertionFailureException::class, '1 is equal to 1')
     ->covers(Assertion::class, 'equal')
     ->covers(Assertion::class, 'not');
 

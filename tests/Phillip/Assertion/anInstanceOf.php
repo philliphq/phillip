@@ -19,7 +19,7 @@ test('Test anInstanceOf with an incorrect object', function (Test $test) {
 
 test('Test anInstanceOf with an integer', function (Test $test) {
     $test->is(1)->anInstanceOf(Test::class);
-})->expect(AssertionFailureException::class, '"1" is not an instance of "Phillip\Test"')->covers(Assertion::class, 'anInstanceOf');
+})->expect(AssertionFailureException::class, '1 is not an instance of "Phillip\Test"')->covers(Assertion::class, 'anInstanceOf');
 
 test('Test anInstanceOf with a string', function (Test $test) {
     $test->is('that')->anInstanceOf(Test::class);
