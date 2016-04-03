@@ -484,9 +484,7 @@ class Test
      */
     public function is($value)
     {
-        $this->assertions++;
-
-        return new Assertion($value);
+        return new Assertion($value, $this);
     }
 
     /**
@@ -499,5 +497,15 @@ class Test
     public function does($value)
     {
         return $this->is($value);
+    }
+
+    /**
+     * Increment the assertion count.
+     *
+     * @return int
+     */
+    public function incrementAssertionCount()
+    {
+        return $this->assertions++;
     }
 }

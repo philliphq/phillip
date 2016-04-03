@@ -23,13 +23,21 @@ class Assertion
     private $negative = false;
 
     /**
+     * The test which called this assertion.
+     *
+     * @var Test
+     */
+    private $test = null;
+
+    /**
      * Create the assertion object.
      *
      * @param mixed $value The value we will assert against
      */
-    public function __construct($value)
+    public function __construct($value, Test $test)
     {
         $this->value = $value;
+        $this->test  = $test;
     }
 
     /**
@@ -55,6 +63,9 @@ class Assertion
      */
     public function assert($assertion, $message)
     {
+        // Increment the assertion count
+        $this->test->incrementAssertionCount();
+
         $assertion = $this->negative ? !((bool) $assertion) : (bool) $assertion;
 
         if ($assertion === false) {
