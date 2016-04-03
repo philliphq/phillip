@@ -1,11 +1,27 @@
 <?php
 
+/**
+ * This file contains the Assertion class.
+ *
+ * @package philliphq/phillip
+ *
+ * @author James Dinsdale <hi@molovo.co>
+ * @copyright Copyright 2016, James Dinsdale
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace Phillip;
 
 use Phillip\Exceptions\AssertionFailureException;
 use ReflectionFunction;
 use Traversable;
 
+/**
+ * An object against which assertions can be made.
+ *
+ * @since v0.1.0
+ */
 class Assertion
 {
     /**
@@ -33,6 +49,7 @@ class Assertion
      * Create the assertion object.
      *
      * @param mixed $value The value we will assert against
+     * @param Test  $test  The test in which this assertion is being made
      */
     public function __construct($value, Test $test)
     {
@@ -341,6 +358,8 @@ class Assertion
 
     /**
      * Assert that the value matches a given regular expression.
+     *
+     * @param string $regex A regular expression to match against
      *
      * @throws AssertionFailureException
      *

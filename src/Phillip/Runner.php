@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * This file contains the Runner class.
+ *
+ * @package philliphq/phillip
+ *
+ * @author James Dinsdale <hi@molovo.co>
+ * @copyright Copyright 2016, James Dinsdale
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace Phillip;
 
 use Evenement\EventEmitterInterface;
@@ -11,6 +22,11 @@ use Phillip\Exceptions\TestNotFoundException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
+/**
+ * The test runner.
+ *
+ * @since v0.1.0
+ */
 class Runner implements EventEmitterInterface
 {
     use EventEmitterTrait;

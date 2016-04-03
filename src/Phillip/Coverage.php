@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * This file contains the Coverage class.
+ *
+ * @package philliphq/phillip
+ *
+ * @author James Dinsdale <hi@molovo.co>
+ * @copyright Copyright 2016, James Dinsdale
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace Phillip;
 
 use Molovo\Graphite\Graphite;
@@ -9,6 +20,11 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 
+/**
+ * Calculates coverage of the tested code, and generate reports.
+ *
+ * @since v0.2.0
+ */
 class Coverage
 {
     /**
@@ -17,6 +33,7 @@ class Coverage
     const USED     = 1;
     const NOT_USED = -1;
     const DEAD     = -2;
+
     /**
      * An array containing details of lines marked as covered
      * by the tests being run.
@@ -35,7 +52,7 @@ class Coverage
     /**
      * The coverage data, organised by class and file name.
      *
-     * @var [type]
+     * @var array
      */
     private $processed;
 
@@ -276,7 +293,7 @@ class Coverage
 
             // Scan the file for tokens
             //
-            // We suppress errors here, as we expect errors as we are
+            // We suppress errors here, as we expect errors because we are
             // only parsing a portion of the file at a time
             $tokens = @token_get_all($buffer);
 

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * This file contains the Test class.
+ *
+ * @package philliphq/phillip
+ *
+ * @author James Dinsdale <hi@molovo.co>
+ * @copyright Copyright 2016, James Dinsdale
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace Phillip;
 
 use Closure;
@@ -8,6 +19,10 @@ use Molovo\Object\Object;
 use Phillip\Exceptions\AssertionFailureException;
 use Phillip\Exceptions\MissingCallbackException;
 
+/**
+ * A test. Contains methods for directly passing/failing tests,
+ * as well as making assertions against it.
+ */
 class Test
 {
     /**
@@ -284,7 +299,8 @@ class Test
      * Define an expected exception. The exception must be thrown
      * for this test to pass.
      *
-     * @param string $exception An exception classname
+     * @param string      $exception An exception classname
+     * @param string|null $message   The expected message if exception is thrown
      *
      * @return self
      */

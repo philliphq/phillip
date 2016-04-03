@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * This file contains helper methods for use during testing.
+ *
+ * @package philliphq/phillip
+ *
+ * @author James Dinsdale <hi@molovo.co>
+ * @copyright Copyright 2016, James Dinsdale
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 use Phillip\Runner;
 use Phillip\Test;
 
